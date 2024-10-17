@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+                color: white;
+            }
+
+            h1 {
+                background: #7F7FD5;
+                background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+                background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .container {
+                height: 100%;
+                display: flex;
+            }
+
+            #toolbar {
+                display: flex;
+                flex-direction: column;
+                padding: 5px;
+                width: 70px;
+                background-color: #202020;
+            }
+
+            #toolbar * {
+                margin-bottom: 6px;
+            }
+
+            #toolbar label {
+                font-size: 12px;
+            }
+
+            #toolbar input {
+                width: 100%;
+            }
+
+            #toolbar button {
+                background-color: #1565c0;
+                border: none;
+                border-radius: 4px;
+                color:white;
+                padding: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <!--        <div>GROUP</div>
+                <input type="text" id="inputText"/>
+                <input type="button" value="Send Data" onclick="sendData()"/> <br><br>
+                <textarea row="10" cols="50" id="content"></textarea>-->
+        <section class="container">
+            <div id="toolbar">
+                <h1>Draw.</h1>
+                <label for="stroke">Stroke</label>
+                <input id="stroke" name='stroke' type="color">
+                <label for="lineWidth">Line Width</label>
+                <input id="lineWidth" name='lineWidth' type="number" value="5">
+                <button id="clear">Clear</button>
+            </div>
+            <div class="drawing-board">
+                <canvas id="drawing-board"></canvas>
+            </div>
+        </section>
+
+        <script src="./index.js"></script>
+        <script>
+            let username = prompt("Enter your name:");
+            var websocket = new WebSocket("ws://localhost:8080/jnp2023/chatRoomServer");
+            console.log(">>>> server", "ws://localhost:8080/jnp2023/chatRoomServer");
+
+            websocket.onopen = (message) => {
+                sendData("username " + username);
+                processOpen(message);
+            }
+            websocket.onmessage = (messageEvent) => {
+                console.log(">>>> receive ", messageEvent.data)
+                processMessage(messageEvent.data);
+            }
+            websocket.onclose = (message) => {
+                processClose(message);
+            }
+            websocket.onerror = (message) => {
+                processError(message);
+            }
+            function processOpen(message) {
+
+            }
+            function processClose(message) {
+
+            }
+            function processError(message) {
+
+            }
+            function getColorByColorStr(colorStr) {
+                let res = "";
+                let arr = colorStr.split("=");
+                console.log(">>> arr", arr);
+                let r = parseInt(arr[1]);
+                let g = parseInt(arr[2]);
+                let b = parseInt(arr[3]);
+                return `rgb(${r},${g},${b})`;
+            }
+            function processMessage(message) {
+                const drawArray = message.split(";");
+                const xCor = drawArray[3];
+                const yCor = drawArray[4];
+                const oldX = drawArray[1];
+                const oldY = drawArray[2];
+                const color = getColorByColorStr(drawArray[5]);
+                console.log(">>> color", color);
+                handleDraw(xCor, yCor, oldX, oldY, color);
+            }
+            function sendData(messageToSend) {
+                const mes = messageToSend;
+                if (typeof websocket != "undefined" && websocket.readyState == WebSocket.OPEN) {
+                    console.log(">>> sent")
+                    websocket.send(mes);
+                }
+            }
+        </script>
+
+    </body>
+</html>
